@@ -1,0 +1,217 @@
+#+title: Emacs Configuration
+
+Emacs configuration using babel.
+
+* Load straight.el package manager
+#+BEGIN_SRC emacs-lisp
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+	 (expand-file-name
+	  "straight/repos/straight.el/bootstrap.el"
+	  (or (bound-and-true-p straight-base-dir)
+	      user-emacs-directory)))
+	(bootstrap-version 7))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+	  (url-retrieve-synchronously
+	   "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+	   'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (setq package-enable-at-startup nil)
+#+END_SRC
+
+** Load Packages
+
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package 'use-package)
+  (straight-use-package 'catppuccin-theme)
+#+END_SRC
+
+* UI Customization
+
+** Remove UI Elements
+#+BEGIN_SRC emacs-lisp
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1)
+#+END_SRC
+
+** Load theme
+#+BEGIN_SRC emacs-lisp
+  (load-theme 'catppuccin :no-confirm)
+#+END_SRC
+
+** Display line numbers
+Also display column in mode line
+
+#+BEGIN_SRC emacs-lisp
+  (global-display-line-numbers-mode 1)
+  (column-number-mode)
+  (dolist (mode '(org-mode-hook
+		term-mode-hook
+		eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+END_SRC
+
+** Font settings
+#+BEGIN_SRC emacs-lisp
+  (set-frame-font "Monaspace Neon-16" nil t)
+  (setq line-spacing 5)
+#+END_SRC
+
+** Modeline
+#+BEGIN_SRC emacs-lisp
+  (use-package doom-modeline
+    :straight t
+    :ensure t
+    :init (doom-modeline-mode 1))
+#+END_SRC
+
+** Word Wrap
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'text-mode-hook 'turn-on-visual-line-mode)
+#+END_SRC
+
+* Quality of life
+
+** Which key
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :straight t
+    :init (which-key-mode)
+    :diminish which-key-mode
+    :config
+    (setq which-key-idle-delay 0.3))
+#+END_SRC
+
+** Rainbow delimiters
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :straight t
+    :hook (prog-mode . rainbow-delimiters-mode))
+#+END_SRC
+
+** Ivy, swiper, counsel
+#+BEGIN_SRC emacs-lisp
+    (use-package ivy
+      :straight t
+      :demand t
+      :diminish ivy-mode
+      :config
+      (setq ivy-use-virtual-buffers t)
+      (setq ivy-count-format "(%d/%d) ")
+      (ivy-mode 1))
+
+    (use-package swiper
+      :straight t
+      :bind (("C-s" . swiper)))
+
+    (use-package counsel
+      :straight t
+      :bind (("M-x" . counsel-M-x)))
+
+    (use-package ivy-rich
+      :straight t
+      :init
+      (ivy-rich-mode 1))
+#+END_SRC
+
+* Meow Modal Editing
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package 'meow)
+
+  (defun meow-setup ()
+  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+  (meow-motion-overwrite-define-key
+   '("j" . meow-next)
+   '("k" . meow-prev)
+   '("<escape>" . ignore))
+  (meow-leader-define-key
+   ;; SPC j/k will run the original command in MOTION state.
+   '("j" . "H-j")
+   '("k" . "H-k")
+   ;; Use SPC (0-9) for digit arguments.
+   '("1" . meow-digit-argument)
+   '("2" . meow-digit-argument)
+   '("3" . meow-digit-argument)
+   '("4" . meow-digit-argument)
+   '("5" . meow-digit-argument)
+   '("6" . meow-digit-argument)
+   '("7" . meow-digit-argument)
+   '("8" . meow-digit-argument)
+   '("9" . meow-digit-argument)
+   '("0" . meow-digit-argument)
+   '("/" . meow-keypad-describe-key)
+   '("?" . meow-cheatsheet))
+  (meow-normal-define-key
+   '("0" . meow-expand-0)
+   '("9" . meow-expand-9)
+   '("8" . meow-expand-8)
+   '("7" . meow-expand-7)
+   '("6" . meow-expand-6)
+   '("5" . meow-expand-5)
+   '("4" . meow-expand-4)
+   '("3" . meow-expand-3)
+   '("2" . meow-expand-2)
+   '("1" . meow-expand-1)
+   '("-" . negative-argument)
+   '(";" . meow-reverse)
+   '("," . meow-inner-of-thing)
+   '("." . meow-bounds-of-thing)
+   '("[" . meow-beginning-of-thing)
+   '("]" . meow-end-of-thing)
+   '("a" . meow-append)
+   '("A" . meow-open-below)
+   '("b" . meow-back-word)
+   '("B" . meow-back-symbol)
+   '("c" . meow-change)
+   '("d" . meow-delete)
+   '("D" . meow-backward-delete)
+   '("e" . meow-next-word)
+   '("E" . meow-next-symbol)
+   '("f" . meow-find)
+   '("g" . meow-cancel-selection)
+   '("G" . meow-grab)
+   '("h" . meow-left)
+   '("H" . meow-left-expand)
+   '("i" . meow-insert)
+   '("I" . meow-open-above)
+   '("j" . meow-next)
+   '("J" . meow-next-expand)
+   '("k" . meow-prev)
+   '("K" . meow-prev-expand)
+   '("l" . meow-right)
+   '("L" . meow-right-expand)
+   '("m" . meow-join)
+   '("n" . meow-search)
+   '("o" . meow-block)
+   '("O" . meow-to-block)
+   '("p" . meow-yank)
+   '("q" . meow-quit)
+   '("Q" . meow-goto-line)
+   '("r" . meow-replace)
+   '("R" . meow-swap-grab)
+   '("s" . meow-kill)
+   '("t" . meow-till)
+   '("u" . meow-undo)
+   '("U" . meow-undo-in-selection)
+   '("v" . meow-visit)
+   '("w" . meow-mark-word)
+   '("W" . meow-mark-symbol)
+   '("x" . meow-line)
+   '("X" . meow-goto-line)
+   '("y" . meow-save)
+   '("Y" . meow-sync-grab)
+   '("z" . meow-pop-selection)
+   '("'" . repeat)
+   '("<escape>" . ignore)))
+
+  (require 'meow)
+  (meow-setup)
+  (meow-global-mode 1)
+#+END_SRC
