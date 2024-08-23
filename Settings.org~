@@ -2,11 +2,6 @@
 
 Emacs configuration using babel.
 
-Run the following command to restart emacs server:
-#+BEGIN_SRC bash
-  systemctl --user restart emacs.server
-#+END_SRC
-
 * Load straight.el package manager
 #+BEGIN_SRC emacs-lisp
   (defvar bootstrap-version)
@@ -47,16 +42,8 @@ Run the following command to restart emacs server:
 #+END_SRC
 
 ** Load theme
-Catppuccin theme customized to gruvbox
 #+BEGIN_SRC emacs-lisp
   (load-theme 'catppuccin :no-confirm)
-  (catppuccin-set-color 'crust "#141617")
-  (catppuccin-set-color 'mantle "#1d2021")
-  (catppuccin-set-color 'base "#1d2021")
-  (catppuccin-set-color 'surface0 "#282828")
-  (catppuccin-set-color 'surface1 "#3c3836")
-  (catppuccin-set-color 'surface2 "#3c3836")
-  (catppuccin-reload)
 #+END_SRC
 
 ** Display line numbers
@@ -65,15 +52,15 @@ Also display column in mode line
 #+BEGIN_SRC emacs-lisp
   (global-display-line-numbers-mode 1)
   (column-number-mode)
-  (dolist (mode '(term-mode-hook
+  (dolist (mode '(org-mode-hook
+		term-mode-hook
 		eshell-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+END_SRC
 
 ** Font settings
 #+BEGIN_SRC emacs-lisp
-  ;; (set-frame-font "Monaspace Neon-16" nil t)
-  (add-to-list 'default-frame-alist '(font . "Monaspace Neon-16"))
+  (set-frame-font "Monaspace Neon-16" nil t)
   (setq line-spacing 5)
 #+END_SRC
 
@@ -132,70 +119,4 @@ Also display column in mode line
       :straight t
       :init
       (ivy-rich-mode 1))
-#+END_SRC
-
-* Meow Modal Editing
-#+BEGIN_SRC emacs-lisp
-  (straight-use-package 'meow)
-
-  (defun meow-setup ()
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-  (meow-motion-overwrite-define-key
-   '("j" . meow-next)
-   '("k" . meow-prev)
-   '("<escape>" . ignore))
-  (meow-leader-define-key
-   ;; SPC j/k will run the original command in MOTION state.
-   '("j" . "H-j")
-   '("k" . "H-k")
-   ;; Use SPC (0-9) for digit arguments.
-   '("1" . meow-digit-argument)
-   '("2" . meow-digit-argument)
-   '("3" . meow-digit-argument)
-   '("4" . meow-digit-argument)
-   '("5" . meow-digit-argument)
-   '("6" . meow-digit-argument)
-   '("7" . meow-digit-argument)
-   '("8" . meow-digit-argument)
-   '("9" . meow-digit-argument)
-   '("0" . meow-digit-argument)
-   '("/" . meow-keypad-describe-key)
-   '("?" . meow-cheatsheet))
-  (meow-normal-define-key
-   '("j" . meow-next)
-   '("k" . meow-prev)
-   '("l" . meow-right)
-   '("h" . meow-left)
-   '("/" . meow-search)
-   '("y" . meow-save)
-   '("p" . meow-yank)
-   '("d" . meow-kill)
-   '("o" . meow-open-below)
-   '("O" . meow-open-above)
-   '("a" . meow-append)
-   '("c" . meow-change)
-   '("g" . meow-cancel-selection)
-   '("i" . meow-insert)
-   '("x" . meow-line)
-   '("0" . meow-expand-0)
-   '("9" . meow-expand-9)
-   '("8" . meow-expand-8)
-   '("7" . meow-expand-7)
-   '("6" . meow-expand-6)
-   '("5" . meow-expand-5)
-   '("4" . meow-expand-4)
-   '("3" . meow-expand-3)
-   '("2" . meow-expand-2)
-   '("1" . meow-expand-1)
-   '("-" . negative-argument)
-   '(";" . meow-reverse)
-   '("b" . meow-back-word)
-   '("B" . meow-back-symbol)
-   '("e" . meow-next-word)
-   '("u" . meow-undo)
-   '("<escape>" . ignore)))
-
-  (require 'meow)
-  (meow-setup)
-  (meow-global-mode 1)
 #+END_SRC
