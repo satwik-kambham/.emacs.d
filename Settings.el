@@ -82,65 +82,79 @@
   :init
   (ivy-rich-mode 1))
 
-(straight-use-package 'meow)
+(straight-use-package 'ryo-modal)
+(straight-use-package 'expand-region)
 
-(defun meow-setup ()
-(setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-(meow-motion-overwrite-define-key
- '("j" . meow-next)
- '("k" . meow-prev)
- '("<escape>" . ignore))
-(meow-leader-define-key
- ;; SPC j/k will run the original command in MOTION state.
- '("j" . "H-j")
- '("k" . "H-k")
- ;; Use SPC (0-9) for digit arguments.
- '("1" . meow-digit-argument)
- '("2" . meow-digit-argument)
- '("3" . meow-digit-argument)
- '("4" . meow-digit-argument)
- '("5" . meow-digit-argument)
- '("6" . meow-digit-argument)
- '("7" . meow-digit-argument)
- '("8" . meow-digit-argument)
- '("9" . meow-digit-argument)
- '("0" . meow-digit-argument)
- '("/" . meow-keypad-describe-key)
- '("?" . meow-cheatsheet))
-(meow-normal-define-key
- '("j" . meow-next)
- '("k" . meow-prev)
- '("l" . meow-right)
- '("h" . meow-left)
- '("/" . meow-search)
- '("y" . meow-save)
- '("p" . meow-yank)
- '("d" . meow-kill)
- '("o" . meow-open-below)
- '("O" . meow-open-above)
- '("a" . meow-append)
- '("c" . meow-change)
- '("g" . meow-cancel-selection)
- '("i" . meow-insert)
- '("x" . meow-line)
- '("0" . meow-expand-0)
- '("9" . meow-expand-9)
- '("8" . meow-expand-8)
- '("7" . meow-expand-7)
- '("6" . meow-expand-6)
- '("5" . meow-expand-5)
- '("4" . meow-expand-4)
- '("3" . meow-expand-3)
- '("2" . meow-expand-2)
- '("1" . meow-expand-1)
- '("-" . negative-argument)
- '(";" . meow-reverse)
- '("b" . meow-back-word)
- '("B" . meow-back-symbol)
- '("e" . meow-next-word)
- '("u" . meow-undo)
- '("<escape>" . ignore)))
+(defun modal-set-mark-here ()
+  "Set the mark at the location of the point."
+  (interactive) (set-mark (point)))
 
-(require 'meow)
-(meow-setup)
-(meow-global-mode 1)
+(defun modal-set-mark-if-inactive ()
+  "Set the mark if it isn't active."
+  (interactive)
+  (unless (use-region-p) (set-mark (point))))
+
+(defun exit-modal-mode ()
+  "Exit ryo modal mode."
+  (interactive)
+  (ryo-modal-mode 0))
+
+(defun modal-deactivate-mark ()
+  "Deactivate the mark."
+  (interactive)
+  (deactivate-mark))
+
+(defun modal-select-line (count)
+  "Select and expend lines."
+  (interactive "p")
+  (beginning-of-line)
+  (unless (use-region-p) (set-mark (point)))
+  (forward-line count))
+
+(defun modal-create-new-line (count)
+  "Create new line below."
+  (interactive "p")
+  (end-of-line)
+  (dotimes (_ count)
+    (electric-newline-and-maybe-indent)))
+
+(defun modal-kill-selected-text ()
+  "Kill selected text."
+  (interactive)
+  (kill-region (region-beginning) (region-end)))
+
+(defun setup-modal-keybinds ()
+  "Setup keybinds in navigation mode."
+  (global-subword-mode t)
+  (ryo-modal-keys
+   ("h" backward-char :first '(modal-deactivate-mark))
+   ("H" backward-char :first '(modal-set-mark-if-inactive))
+   ("j" next-line :first '(modal-deactivate-mark))
+   ("J" next-line :first '(modal-set-mark-if-inactive))
+   ("k" previous-line :first '(modal-deactivate-mark))
+   ("K" previous-line :first '(modal-set-mark-if-inactive))
+   ("l" forward-char :first '(modal-deactivate-mark))
+   ("L" forward-char :first '(modal-set-mark-if-inactive))
+   ("g" beginning-of-buffer :first '(modal-deactivate-mark))
+   ("G" end-of-buffer :first '(modal-deactivate-mark))
+   ("a" forward-char :exit t)
+   ("w" forward-word :first '(modal-set-mark-here))
+   ("W" forward-word :first '(modal-set-mark-if-inactive))
+   ("b" backward-word :first '(modal-set-mark-here))
+   ("B" backward-word :first '(modal-set-mark-if-inactive))
+   ("x" modal-select-line)
+   ("d" modal-kill-selected-text)
+   ("c" modal-kill-selected-text :exit t)
+   ("i" exit-modal-mode)
+   ("a" forward-char :exit t)
+   ("o" modal-create-new-line :exit t)))
+
+(use-package ryo-modal
+  :straight t
+  :commands ryo-modal-mode
+  :bind ("C-c SPC" . ryo-modal-mode)
+  :hook (after-init . modal-mode-setup)
+  :config
+  (defun modal-mode-setup ()
+    "Setup modal mode"
+    (setup-modal-keybinds)))
