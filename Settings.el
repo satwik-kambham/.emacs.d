@@ -82,6 +82,10 @@
   :init
   (ivy-rich-mode 1))
 
+(straight-use-package 'projectile)
+(projectile-mode +1)
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+
 (straight-use-package 'ryo-modal)
 (straight-use-package 'expand-region)
 
@@ -143,6 +147,8 @@
    ("b" backward-word :first '(modal-set-mark-here))
    ("B" backward-word :first '(modal-set-mark-if-inactive))
    ("x" modal-select-line)
+   ("y" kill-ring-save)
+   ("p" yank)
    ("d" modal-kill-selected-text)
    ("c" modal-kill-selected-text :exit t)
    ("i" exit-modal-mode)
@@ -157,4 +163,7 @@
   :config
   (defun modal-mode-setup ()
     "Setup modal mode"
+    (setq ryo-modal-cursor-color "#cba6f8")
     (setup-modal-keybinds)))
+
+(straight-use-package 'auto-complete)
