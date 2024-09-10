@@ -47,6 +47,17 @@
   :ensure t
   :init (doom-modeline-mode 1))
 
+(use-package dashboard
+  :straight t
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook)
+  (setq dashboard-project-backend 'projectile)
+  (setq dashboard-items '((recents . 5)
+			  (projects . 5)))
+  (setq dashboard-item-shortcuts '((recents . "r")
+				   (projects . "p"))))
+
 (add-hook 'text-mode-hook 'turn-on-visual-line-mode)
 
 (use-package which-key
@@ -85,6 +96,7 @@
 (straight-use-package 'projectile)
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+(straight-use-package 'rg)
 
 (straight-use-package 'ryo-modal)
 (straight-use-package 'expand-region)
@@ -155,15 +167,36 @@
    ("a" forward-char :exit t)
    ("o" modal-create-new-line :exit t)))
 
-(use-package ryo-modal
+;; (use-package ryo-modal
+;;   :straight t
+;;   :commands ryo-modal-mode
+;;   :bind ("C-z" . ryo-modal-mode)
+;;   :hook (after-init . modal-mode-setup)
+;;   :config
+;;   (defun modal-mode-setup ()
+;;     "Setup modal mode"
+;;     (setq ryo-modal-cursor-color "#cba6f8")
+;;     (global-set-key (kbd "<escape>") 'ryo-modal-mode)
+;;     (setup-modal-keybinds)))
+(use-package evil
   :straight t
-  :commands ryo-modal-mode
-  :bind ("C-c SPC" . ryo-modal-mode)
-  :hook (after-init . modal-mode-setup)
+  :ensure t
   :config
-  (defun modal-mode-setup ()
-    "Setup modal mode"
-    (setq ryo-modal-cursor-color "#cba6f8")
-    (setup-modal-keybinds)))
+  (evil-mode 1))
 
 (straight-use-package 'auto-complete)
+
+(use-package magit
+  :straight t)
+
+(use-package envrc
+  :straight t
+  :hook (after-init . envrc-global-mode))
+
+(use-package lsp-mode
+  :straight t
+  :commands (lsp lsp-deferred)
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :config
+  (lsp-enable-which-key-integration t))

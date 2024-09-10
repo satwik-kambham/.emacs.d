@@ -85,6 +85,20 @@ Also display column in mode line
     :init (doom-modeline-mode 1))
 #+END_SRC
 
+** Dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :straight t
+    :ensure t
+    :config
+    (dashboard-setup-startup-hook)
+    (setq dashboard-project-backend 'projectile)
+    (setq dashboard-items '((recents . 5)
+			    (projects . 5)))
+    (setq dashboard-item-shortcuts '((recents . "r")
+				     (projects . "p"))))
+#+END_SRC
+
 ** Word Wrap
 #+BEGIN_SRC emacs-lisp
   (add-hook 'text-mode-hook 'turn-on-visual-line-mode)
@@ -139,6 +153,7 @@ Also display column in mode line
   (straight-use-package 'projectile)
   (projectile-mode +1)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (straight-use-package 'rg)
 #+END_SRC
 
 * Modal Editing
@@ -223,16 +238,46 @@ Enable globalSubwordMode.
   (use-package ryo-modal
     :straight t
     :commands ryo-modal-mode
-    :bind ("C-c SPC" . ryo-modal-mode)
+    :bind ("C-z" . ryo-modal-mode)
     :hook (after-init . modal-mode-setup)
     :config
     (defun modal-mode-setup ()
       "Setup modal mode"
       (setq ryo-modal-cursor-color "#cba6f8")
+      (global-set-key (kbd "<escape>") 'ryo-modal-mode)
       (setup-modal-keybinds)))
+  ;; (use-package evil
+  ;;   :straight t
+  ;;   :ensure t
+  ;;   :config
+  ;;   (evil-mode 1))
 #+END_SRC
 
 * Auto Completion
 #+BEGIN_SRC emacs-lisp
   (straight-use-package 'auto-complete)
+#+END_SRC
+
+* Magit
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :straight t)
+#+END_SRC
+
+* Direnv
+#+BEGIN_SRC emacs-lisp
+  (use-package envrc
+    :straight t
+    :hook (after-init . envrc-global-mode))
+#+END_SRC
+
+* LSP Mode
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :straight t
+    :commands (lsp lsp-deferred)
+    :init
+    (setq lsp-keymap-prefix "C-c l")
+    :config
+    (lsp-enable-which-key-integration t))
 #+END_SRC
